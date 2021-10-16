@@ -1,11 +1,10 @@
-import datetime
 import json
 
 class Vote():
 
-	def __init__(self, vote:str, public_key:str):
-		self.vote = vote
-		self.public_key = public_key
+    def __init__(self, vote:str, public_key:str):
+        self.vote = vote
+        self.public_key = public_key
 
     def dict(self):
         """
@@ -31,6 +30,3 @@ class Vote():
         :return: <str> String of the json responce
         """
         return str(self.json())
-
-
-

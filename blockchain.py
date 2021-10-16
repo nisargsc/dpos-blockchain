@@ -46,7 +46,7 @@ class Blockchain():
         # Creating new block
         num = self.head.num + 1
         prev_hash = self.head.hash
-        new_block = Block(num, data, prev_hash)
+        new_block = Block(num, data, prev_hash= prev_hash)
 
         # Seting the linked-list pointers
         new_block.prev = self.head
@@ -118,14 +118,12 @@ class Blockchain():
         """
         if self.valid_chain(new_chain):
             self.genesis = None
-            self.genesis = Block(new_chain[0]['num'], new_chain[0]['data'])
+            self.genesis = Block(new_chain[0]['num'], new_chain[0]['data'], timestamp= new_chain[0]['timestamp'])
             self.genesis.hash = new_chain[0]['hash']
-            self.genesis.timestamp = new_chain[0]['timestamp']
             self.head = self.genesis
             for block_dict in new_chain[1:]:
-                new_block = Block(block_dict['num'], block_dict['data'], block_dict['prev_hash'])
+                new_block = Block(block_dict['num'], block_dict['data'], block_dict['prev_hash'], timestamp= block_dict['timestamp'])
                 new_block.prev = self.head
-                new_block.timestamp = block_dict['timestamp']
                 self.head.next = new_block
                 self.head = new_block
 
