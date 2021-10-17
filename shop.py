@@ -26,6 +26,7 @@ class Shop():
         self.block_list = []
         self.block_list.append(self.blockchain.genesis.dict())
         self.nodes = set()
+        #TODO: have a key pair here as a class attr
 
     def add_transaction(self, customer:str, amount_paid:float, item:str, quantity:int):
         """
@@ -49,7 +50,7 @@ class Shop():
         :return: None
         """
         if (len(self.unverified_transactions) >= 2):
-            block_dict = self.blockchain.mine_block(self.unverified_transactions)
+            block_dict = self.blockchain.create_block(self.unverified_transactions)
             self.block_list.append(block_dict)
             self.unverified_transactions = []
         else:

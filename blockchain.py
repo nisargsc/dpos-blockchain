@@ -1,6 +1,7 @@
 import hashlib
 import json
 from block import Block
+from crypto import valid_sign
 
 class Blockchain():
     """
@@ -56,13 +57,13 @@ class Blockchain():
 
         return new_block.dict()
 
-    def varify_blocks(self, prev_block:dict, block:dict, creator: str):
+    def varify_blocks(self, prev_block:dict, block:dict, creator_key: str):
         """
         Varifies if given two block_dict form valid blockchain or not.
 
         :param prev_block: <block_dict>
         :param block: <block_dict>
-        :param creator: <str> public key of the block creator
+        :param creator_key: <str> public key of the block creator_key
 
         :return: <bool> True if valid False if not
 
@@ -75,7 +76,13 @@ class Blockchain():
             'sign' : <str>
         }
         """
-        #TODO varify the block signature with public key of the creator
+
+        if(creator_key==None):
+            print("Creator key required")
+            return False
+        elif (not valid_sign(block['sign'], creator_key)):
+            print("Sign invalid")
+            return False
 
         # Checking if block has correct prev_hash and proof
         if(prev_block==None):

@@ -43,7 +43,7 @@ class Block():
 
     def find_hash(self):
         """
-        Finds the hash of the current block using num, timestamp, data, prev_hash and nonce
+        Finds the hash of the current block using num, timestamp, data, prev_hash
 
         :return: <str> hash of the current block
         """
@@ -58,7 +58,15 @@ class Block():
 
         :return: None
         """
-        self.hash = self.find_hash() 
+        self.hash = self.find_hash()
+
+    #TODO: Sign the blocks data with the key
+    def sign_block(self, key):
+        self.update_hash()
+        block_string = f"{self.num}|{self.timestamp}|{self.data}|{self.prev_hash}|{self.hash}"
+        sign = ''
+
+        self.sign = sign
 
     def dict(self):
         """
@@ -69,8 +77,7 @@ class Block():
             'timestamp' : str(self.timestamp),
             'data' : self.data,
             'prev_hash' : self.prev_hash,
-            'hash' : self.hash,
-            'nonce' : self.nonce
+            'hash' : self.hash
         }
         return block_dict
 
@@ -94,7 +101,6 @@ class Block():
         # data : {self.data} \n \
         # prev_hash : {self.prev_hash} \n \
         # hash : {self.hash} \n \
-        # nonce : {self.nonce} \n \"
 
 if __name__ == '__main__':
 

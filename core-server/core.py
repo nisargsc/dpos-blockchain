@@ -3,13 +3,17 @@ class Core():
     Core server class 
     
     """
+
     def __init__(self):
         self.nodes = {}
         self.candidates = {}
         self.block_creators = []
+        self.unverified_transactions = []
+        #TODO: read the private key from the file and 
+        self.private_key = ''
 
-    def register_node(self):
-        pass
+    def register_node(self, key:str, address:str):
+        self.nodes[key] = address
 
     def add_candidate(self):
         pass
