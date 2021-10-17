@@ -26,6 +26,7 @@ class Shop():
         self.block_list = []
         self.block_list.append(self.blockchain.genesis.dict())
         self.nodes = set()
+        #TODO: have a key pair here as a class attr
 
     def add_transaction(self, customer:str, amount_paid:float, item:str, quantity:int):
         """
@@ -41,6 +42,10 @@ class Shop():
         t = Transaction(customer, amount_paid, item, quantity)
         self.unverified_transactions.append(t.dict())
         return t.dict()
+
+    #TODO: validate sign using key
+    def valid_sign(self, sign, key):
+        return True
 
     def mine_transactions(self):
         """

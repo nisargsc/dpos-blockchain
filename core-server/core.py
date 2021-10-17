@@ -8,8 +8,12 @@ class Core():
         self.candidates = {}
         self.block_creators = []
 
-    def register_node(self):
-        pass
+    def register_node(self, key, address):
+        self.nodes[key] = address
+
+    #TODO: validate sign using key
+    def valid_sign(self, sign, key):
+        return True
 
     def add_candidate(self):
         pass

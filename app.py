@@ -6,6 +6,14 @@ app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
 
 s = Shop()
+core_address = 'http://127.0.0.1:4000/'
+
+@app.route('/', methods=['GET'])
+def demo():
+    response = {
+        'message' : 'Node is runnig!!',
+    }
+    return jsonify(response), 200
 
 @app.route('/mine', methods=['GET'])
 def mine():
@@ -75,21 +83,38 @@ def consensus():
     
     return jsonify(response), 200
 
-@app.route('/nodes/register', methods=['POST'])
-def register_nodes():
-    # Registering the neighbouring nodes in the network
+@app.route('/register', methods=['POST'])
+def register():
+    # Registering the node to the core server
     values = request.get_json()
 
-    nodes = values.get('nodes')
-    if nodes is None:
-        return "Error: Please supply a valid list of nodes", 400
+    node_address = values.get('address')
+    if node_address is None:
+        error_response = {
+            'message' : 'Error: Please Send valid address',
+        }
+        return jsonify(error_response), 400
 
-    for node in nodes:
-        s.register_node(node)
+    #TODO: Do as mentioned below
+    public_key = '<get public key here from the shop object>'
+    sign = 'This is valid public key' # sign this with private key
+    data = {
+        'key' : public_key,
+        'address' : node_address,
+        'sign' : sign
+    }
+
+    r = requests.post(url= f'{core_address}/node/register', json = data)
+    r_json = r.json()
+    if r.status_code != 201:
+        error_response = {
+            'message' : 'Error in the core server',
+            'error' : r_json['message']
+        }
+        return jsonify(error_response), 400
 
     response = {
-        'message': 'New nodes have been added',
-        'total_nodes': list(s.nodes),
+        'message': 'Your node has been added to the core server',
     }
     return jsonify(response), 201
 
@@ -100,7 +125,7 @@ def add_transaction():
     # Checking if all the required fields are in the request values
     required = ['customer', 'amount', 'item', 'quantity']
     if not all(k in values for k in required):
-        return 'Missing values', 400
+        return jsonify({'message': 'Missing values'}), 400
     
     customer = values['customer']
     amount = values['amount']
@@ -151,4 +176,4 @@ def add_transaction_dict():
     return jsonify(response), 201
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
