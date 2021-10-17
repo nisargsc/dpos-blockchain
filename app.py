@@ -6,7 +6,10 @@ app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
 
 s = Shop()
-core_address = 'http://127.0.0.1:4000/'
+core_server = 'http://127.0.0.1:4000/'
+
+#TODO: read the core public key from the file
+core_key = ''
 
 @app.route('/', methods=['GET'])
 def demo():
@@ -20,6 +23,16 @@ def mine():
     # Makig sure that we are on the longest valid chain before mining
     s.resolve_conflicts()
 
+    r = requests.get(url= f'{core_server}/transaction/unverified')
+    r_json = r.json()
+    if r.status_code != 200:
+        error_response = {
+            'message' : 'Error: While requesting unverified transactions from core server'
+        }
+        return jsonify(error_response), 400
+
+    s.unverified_transactions = r_json['unverified_transactions']
+
     # Minig the block
     if (len(s.unverified_transactions) >= 2):
         s.mine_transactions()
@@ -27,12 +40,14 @@ def mine():
     else:
         message = 'You need at least 2 transactions to mine a block'
 
-    # Clearing the unverified transaction list in all nodes
-    neighbours = s.nodes
-    for node in neighbours:
-        r = requests.get(f'http://{node}/transaction/unverified/clear')
-        if r.status_code != 200:
-            return 'Error in Neighbour node', 400 
+    # Clearing the unverified transaction list in core
+    r = requests.get(url= f'{core_server}/transaction/unverified/clear')
+    if r.status_code != 200:
+        error_response = {
+            'message' : 'Error: While tring to clear unverified transactinos in core server'
+        }
+        return jsonify(error_response), 400
+
 
     response = {
         'message' : message,
@@ -50,6 +65,16 @@ def show_chain():
 
 @app.route('/transaction/unverified', methods=['GET'])
 def show_unverified():
+    r = requests.get(url= f'{core_server}/transaction/unverified')
+    r_json = r.json()
+    if r.status_code != 200:
+        error_response = {
+            'message' : 'Error in the core server'
+        }
+        return jsonify(error_response), 400
+
+    s.unverified_transactions = r_json['unverified_transactions']
+
     response = {
         'length' : len(s.unverified_transactions),
         'unverified_transactions' : s.unverified_transactions,
@@ -59,9 +84,16 @@ def show_unverified():
 
 @app.route('/transaction/unverified/clear', methods=['GET'])
 def clear_unverified():
+    r = requests.get(url= f'{core_server}/transaction/unverified/clear')
+    if r.status_code != 200:
+        error_response = {
+            'message' : 'Error in the core server'
+        }
+        return jsonify(error_response), 400
+
     s.unverified_transactions = []
     response = {
-        'message' : 'Unvarified transactions list cleared'
+        'message' : 'Unverified transactions list cleared'
     }
 
     return jsonify(response), 200
@@ -104,7 +136,7 @@ def register():
         'sign' : sign
     }
 
-    r = requests.post(url= f'{core_address}/node/register', json = data)
+    r = requests.post(url= f'{core_server}/node/register', json = data)
     r_json = r.json()
     if r.status_code != 201:
         error_response = {
@@ -150,11 +182,12 @@ def add_transaction():
     }
 
     # Adding the same transaction in other nodes
-    neighbours = s.nodes
-    for node in neighbours:
-        r = requests.post(url= f'http://{node}/transaction/add_dict', json = data)
-        if r.status_code != 201:
-            return 'Error from the neighbour nodes', 400
+    r = requests.post(url= f'{core_server}/transaction/add_dict', json = data)
+    if r.status_code != 201:
+        error_response = {
+            'message' : 'Error in the core server'
+        }
+        return jsonify(error_response), 400
 
     response = {
         'message' : 'Transaction is added to the unverified transactions list',
