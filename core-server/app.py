@@ -1,3 +1,4 @@
+from crypto import valid_sign
 from core import Core
 from flask import Flask, jsonify, request
 
@@ -29,7 +30,7 @@ def register_node():
     address = values['address']
     sign = values['sign']
 
-    if (core.valid_sign(sign, key)):
+    if (valid_sign(sign, key)):
         core.register_node(key, address)
         response = {
             'message': 'Your node has been added to the core server',

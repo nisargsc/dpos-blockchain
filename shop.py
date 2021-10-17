@@ -43,16 +43,6 @@ class Shop():
         self.unverified_transactions.append(t.dict())
         return t.dict()
 
-    #TODO: validate sign using key
-    def valid_sign(self, sign, key):
-        return True
-
-    #TODO: validate sign from the data using key
-    def create_sign(self, data:str, key:str):
-        sign = ''
-
-        return sign
-
     def mine_transactions(self):
         """
         Mines all the transactions from the unverified_transactions list into a block and resets the list

@@ -1,6 +1,7 @@
 import hashlib
 import json
 from block import Block
+from crypto import valid_sign
 
 class Blockchain():
     """
@@ -56,10 +57,6 @@ class Blockchain():
 
         return new_block.dict()
 
-    #TODO: validate sign using key
-    def valid_sign(self, sign, key):
-        return True
-
     def varify_blocks(self, prev_block:dict, block:dict, creator_key: str):
         """
         Varifies if given two block_dict form valid blockchain or not.
@@ -83,7 +80,7 @@ class Blockchain():
         if(creator_key==None):
             print("Creator key required")
             return False
-        elif (not self.valid_sign(block['sign'], creator_key)):
+        elif (not valid_sign(block['sign'], creator_key)):
             print("Sign invalid")
             return False
 
