@@ -1,5 +1,6 @@
 from blockchain import Blockchain
 from transaction import Transaction
+from vote import Vote
 from urllib.parse import urlparse
 import requests
 
@@ -55,6 +56,18 @@ class Shop():
             self.unverified_transactions = []
         else:
             print('You need at least 2 transactions to mine a block')
+
+    def add_vote(self, vote:str, public_key:str):
+        """
+        Adds new transactions to unverified_transactions list
+
+        :param vote: <str> vote of the node
+        :param public_key: <str> public_key of the node
+
+        :return: <dict> dict for the vote details
+        """
+        v = Vote(vote,public_key)
+        return v.dict()
 
     def register_node(self, address):
         """
