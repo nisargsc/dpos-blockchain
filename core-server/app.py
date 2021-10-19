@@ -16,7 +16,7 @@ def demo():
 
 # Registering and Showing Nodes
 
-@app.route('/node/register', methods=['POST'])
+@app.route('/nodes/register', methods=['POST'])
 def register_node():
 
     values = request.get_json()
@@ -42,7 +42,7 @@ def register_node():
         }
         return jsonify(response), 400
 
-@app.route('/node/show', methods=['GET'])
+@app.route('/nodes/show', methods=['GET'])
 def show_nodes():
     response = {
         'nodes' : core.nodes
@@ -82,14 +82,72 @@ def clear_unverified():
 
     return jsonify(response), 200
 
+@app.route('/candidate/add', methods=['POST'])
 def add_candidate():
-    pass
+    data = request.get_json()
 
+    if 'key' not in data:
+        error_response = {
+            'message' : 'Key is needed for the nomination'
+        }
+        return jsonify(error_response), 400
+
+    core.add_candidate(data['key'])
+
+    response = {
+        'message' : 'Candidate added to the list',
+    }
+
+    return jsonify(response), 201
+
+@app.route('/candidate/show', methods=['GET'])
 def show_candidates():
-    pass
+    response = {
+        'candidates' : core.candidates
+    }
+    return jsonify(response), 200
 
-def vote():
-    pass
+@app.route('/vote', methods=['POST'])
+def add_vote():
+    values = request.get_json()
+
+    # Checking if all the required fields are in the request values
+    required = ['vote', 'public_key']
+    if not all(k in values for k in required):
+        error_response = {
+            'message' : 'Missing values'
+        }
+        return jsonify(error_response), 400
+
+    vote_signed = values['vote']
+    key = values['public_key']
+
+    if valid_sign(vote_signed, key):
+        #TODO: decode the below vote using the key
+        vote = vote_signed
+    else:
+        error_response = {
+            'message' : 'Vote sign is invalid'
+        }
+        return jsonify(error_response), 400
+
+    core.add_vote(vote)
+    core.update_block_creators()
+
+    response = {
+        'message' : 'Vote added',
+    }
+
+    return jsonify(response), 201
+
+@app.route('/creators', methods=['GET'])
+def show_creators():
+    response = {
+        'length' : len(core.block_creators),
+        'blcok_creators' : core.block_creators,
+    }
+
+    return jsonify(response), 200
 
 if __name__ == '__main__':
     app.run(port=4000)
