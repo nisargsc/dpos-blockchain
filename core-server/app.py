@@ -82,6 +82,8 @@ def clear_unverified():
 
     return jsonify(response), 200
 
+# Adding, Showing Candidates and Adding votes
+
 @app.route('/candidate/add', methods=['POST'])
 def add_candidate():
     data = request.get_json()
@@ -140,11 +142,31 @@ def add_vote():
 
     return jsonify(response), 201
 
+# Showing all block creators, next block creator, prev block creator
+
 @app.route('/creators', methods=['GET'])
 def show_creators():
     response = {
         'length' : len(core.block_creators),
         'blcok_creators' : core.block_creators,
+    }
+
+    return jsonify(response), 200
+
+@app.route('/creators/next', methods=['GET'])
+def show_next_creator():
+    response = {
+        'next_creator' : core.next_creator,
+        'creator_addr' : core.get_node_addr(core.next_creator)
+    }
+
+    return jsonify(response), 200
+
+@app.route('/creators/prev', methods=['GET'])
+def show_prev_creator():
+    response = {
+        'prev_creator' : core.prev_creator,
+        'creator_addr' : core.get_node_addr(core.prev_creator)
     }
 
     return jsonify(response), 200
