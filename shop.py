@@ -1,6 +1,7 @@
 from blockchain import Blockchain
 from transaction import Transaction
 from vote import Vote
+from crypto import Key
 from urllib.parse import urlparse
 import requests
 
@@ -27,7 +28,8 @@ class Shop():
         self.block_list = []
         self.block_list.append(self.blockchain.genesis.dict())
         self.nodes = set()
-        #TODO: have a key pair here as a class attr
+        self.key_pair = Key()
+        self.votes = []
 
     def add_transaction(self, customer:str, amount_paid:float, item:str, quantity:int):
         """
@@ -59,7 +61,7 @@ class Shop():
 
     def add_vote(self, vote:str, public_key:str):
         """
-        Adds new transactions to unverified_transactions list
+        Adds new vote to Votes list
 
         :param vote: <str> vote of the node
         :param public_key: <str> public_key of the node
@@ -67,6 +69,7 @@ class Shop():
         :return: <dict> dict for the vote details
         """
         v = Vote(vote,public_key)
+        self.votes.append(v.dict())
         return v.dict()
 
     def register_node(self, address):
