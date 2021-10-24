@@ -1,32 +1,41 @@
-#TODO: Complete the following methods
 from Crypto.PublicKey import RSA
 from Crypto.Signature.pkcs1_15 import PKCS115_SigScheme
 from Crypto.Hash import SHA256
 
+
 class Key():
 
-    key_pair
-    public_key
+    def __init__(self):
+        self.private_key = RSA.generate(bits=1024)
+        self.public_key = self.private_key.public_key()
 
-   def __init__(self):
-        
-   def create_key_pair(self):
-        self.key_pair = RSA.generate(bits=1024)
-        self.public_key = self.key_pair.public_key()
-        print("this is your private key: store it safely\n")
-        print(self.key_pair.export_key())
+        self.public_key_str = self.public_key.export_key().decode()
+        self.private_key_str = self.private_key.export_key().decode()
 
-#TODO: make sign from the data using key
-   def create_sign(self, data:str):
+    def create_sign(self, data:str):
         hash = SHA256.new(data.encode("utf8"))
-        signer = PKCS115_SigScheme(self.key_pair)
+        signer = PKCS115_SigScheme(self.private_key)
         sign = signer.sign(hash)
         return sign
 
-#TODO: varify the sign using key
-   def valid_sign(self, data:str, sign:str):
+    def valid_sign(self, data:str, sign:str):
         hash = SHA256.new(data.encode("utf8"))
-        verifier = PKCS115_SigScheme(self.key_pair.public_key())
+        verifier = PKCS115_SigScheme(self.private_key.public_key())
+        try:
+            (verifier.verify(hash, sign))
+            return True
+        except:
+            return False
+
+
+def get_rsa_key(key):
+    rsa_key = RSA.import_key(key)
+    return rsa_key
+
+def valid_sign(self, data:str, sign:str, key:str):
+        hash = SHA256.new(data.encode("utf8"))
+        rsa_key = get_rsa_key(key)
+        verifier = PKCS115_SigScheme(rsa_key)
         try: 
             (verifier.verify(hash, sign))
             return True
@@ -34,17 +43,18 @@ class Key():
             return False
 
 if __name__ == '__main__':
-    k = key()
-    k.generate_key_pair()
+    k = Key()
     data = "test"
     data1 = "compromised_data_test"
+    print('key:', k.public_key_str)
+    k1 = get_rsa_key(k.public_key_str)
+    print('key:', k1.export_key().decode())
     s = k.create_sign(data)
     check = k.valid_sign(data1, s)
     print(check)
 
 
 #TODO: add methods to do following
-    # create keys
     # save the keys in seprate key files
 
 #TODO: Do as mentioned below
