@@ -5,26 +5,26 @@ class Core():
     
     """
     def __init__(self):
-        self.nodes = {} # Dict with key:value == node_public_key : node_address
-        self.candidates = {} # Dict with key:values == candidate_public_key : vote_count
+        self.node_addr = {} # Dict with key:value == node_id : node_address
+        self.node_pk = {} # Dict with node_id : node_public_key
+        self.candidates = {} # Dict with key:values == candidate_id : vote_count
         self.block_creators = []
         self.prev_creator = None
         self.next_creator = None
         self.max_creator_number = 3
         self.unverified_transactions = []
-        #TODO: read the private key from the file and 
-        self.private_key = ''
 
-    def register_node(self, key:str, address:str):
-        self.nodes[key] = address
+    def register_node(self, id:str, key:str, address:str):
+        self.node_addr[id] = address
+        self.node_pk[id] = key
 
-    def add_candidate(self, key):
-        if(key not in self.candidates):
-            self.candidates[key] = 0
+    def add_candidate(self, id):
+        if(id not in self.candidates):
+            self.candidates[id] = 0
 
-    def add_vote(self, key):
-        if key in self.candidates:
-            self.candidates[key] += 1
+    def add_vote(self, id):
+        if id in self.candidates:
+            self.candidates[id] += 1
 
     def get_node_addr(self, id):
         return self.nodes[id]

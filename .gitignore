@@ -1,2 +1,4 @@
 __pycache__
 core-server\__pycache__
+public_key.pem
+private_key.pem
