@@ -27,7 +27,7 @@ class Core():
             self.candidates[id] += 1
 
     def get_node_addr(self, id):
-        return self.nodes[id]
+        return self.node_addr[id]
 
     def update_block_creators(self):
         sorted_candidates = sorted(self.candidates, key= self.candidates.get, reverse=True)

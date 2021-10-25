@@ -1,4 +1,4 @@
-from crypto import valid_sign
+from crypto import valid_sign, get_rsa_key
 from core import Core
 from flask import Flask, jsonify, request
 
@@ -92,13 +92,13 @@ def clear_unverified():
 def add_candidate():
     data = request.get_json()
 
-    if 'key' not in data:
+    if 'id' not in data:
         error_response = {
             'message' : 'Key is needed for the nomination'
         }
         return jsonify(error_response), 400
 
-    core.add_candidate(data['key'])
+    core.add_candidate(data['id'])
 
     response = {
         'message' : 'Candidate added to the list',
@@ -118,34 +118,34 @@ def add_vote():
     values = request.get_json()
 
     # Checking if all the required fields are in the request values
-    required = ['vote', 'public_key']
+    required = ['vote', 'id', 'sign']
     if not all(k in values for k in required):
         error_response = {
             'message' : 'Missing values'
         }
         return jsonify(error_response), 400
 
-    vote_signed = values['vote']
-    key = values['public_key']
+    vote = values['vote']
+    sign = values['sign']
+    id = values['id']
 
-    if valid_sign(vote_signed, key):
-        #TODO: decode the below vote using the key
-        vote = vote_signed
+    key = get_rsa_key(core.node_pk[id])
+
+    if valid_sign(vote, sign, key):
+        core.add_vote(vote)
+        core.update_block_creators()
+
+        response = {
+            'message' : 'Vote added',
+        }
+
+        return jsonify(response), 201
     else:
         error_response = {
             'message' : 'Vote sign is invalid'
         }
         return jsonify(error_response), 400
-
-    core.add_vote(vote)
-    core.update_block_creators()
-
-    response = {
-        'message' : 'Vote added',
-    }
-
-    return jsonify(response), 201
-
+   
 # Showing all block creators, next block creator, prev block creator
 
 @app.route('/creators', methods=['GET'])

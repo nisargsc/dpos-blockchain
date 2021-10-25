@@ -164,14 +164,13 @@ def clear_unverified():
 
 @app.route('/election/apply', methods=['GET'])
 def election_apply():
-    #TODO: get public key below
-    public_key = 'public key of the node'
+    id = s.key_pair.public_key_hash
     data = {
-        'key' : public_key
+        'id' : id
     }
 
     # Sending the public key to nominate for the election
-    r = requests.post(url= f'{core_server}/transaction/add_dict', json = data)
+    r = requests.post(url= f'{core_server}/candidate/add', json = data)
     r_json = r.json()
     if r.status_code != 201:
         error_response = {
@@ -186,6 +185,25 @@ def election_apply():
 
     return jsonify(response), 200
 
+@app.route('/election/candidates', methods=['GET'])
+def election_candidates():
+    r = requests.get(url= f'{core_server}/candidate/show')
+    r_json = r.json()
+    if r.status_code != 200:
+        error_response = {
+            'message' : 'Error in the core server'
+        }
+        return jsonify(error_response), 400
+
+    candidates = r_json['candidates']
+
+    response = {
+        'length' : len(candidates),
+        'candidates' : candidates,
+    }
+
+    return jsonify(response), 200
+
 @app.route('/vote', methods=['POST'])
 def add_vote():
     values = request.get_json()
@@ -196,12 +214,11 @@ def add_vote():
         }
         return jsonify(error_response), 400
 
-    vote_id = values['vote']
-    #TODO: Do as below
-    vote = vote_id # sign this
-    public_key = '' # get key here
+    vote = values['vote']
+    sign = s.key_pair.create_sign(vote)
+    id = s.key_pair.public_key_hash
 
-    v_dict = s.add_vote(vote, public_key)
+    v_dict = s.add_vote(id, vote, sign)
 
     # Adding the vote to the core server
     r = requests.post(url= f'{core_server}/vote', json = v_dict)
