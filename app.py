@@ -1,5 +1,6 @@
 import requests
 from shop import Shop
+from crypto import read_key_file, get_rsa_key
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
@@ -8,8 +9,8 @@ app.config['JSON_SORT_KEYS'] = False
 s = Shop()
 core_server = 'http://127.0.0.1:4000/'
 
-#TODO: read the core public key from the file
-core_key = ''
+core_key_path = 'core_public_key.pem'
+core_key = get_rsa_key(read_key_file(key_path=core_key_path))
 
 @app.route('/', methods=['GET'])
 def demo():
@@ -32,10 +33,15 @@ def register():
         }
         return jsonify(error_response), 400
 
-    #TODO: Do as mentioned below
-    public_key = '<get public key here from the shop object>'
-    sign = 'This is valid public key' # sign this with private key
+    # print('addr:', node_address)
+    id = s.key_pair.public_key_hash
+    # print('id:', id)
+    public_key = s.key_pair.public_key_str
+    # print('pk:', public_key)
+    sign = s.key_pair.create_sign('This is valid public key').hex()
+    # print('sign:', sign)
     data = {
+        'id' : id,
         'key' : public_key,
         'address' : node_address,
         'sign' : sign
