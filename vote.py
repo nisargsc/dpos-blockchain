@@ -2,7 +2,7 @@ import json
 
 class Vote():
 
-    def __init__(self, vote:str, public_key:str):
+    def __init__(self, vote:str, sign:str, public_key:str):
         self.vote = vote
         self.public_key = public_key
 
@@ -12,6 +12,7 @@ class Vote():
         """
         vote_dict = {
             'vote' : self.vote,
+            'sign' : self.sign,
             'public_key' : self.public_key
         }
         return vote_dict
